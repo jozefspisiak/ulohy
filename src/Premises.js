@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+//tk what is this? Why is there react everywjere?
 class Premises extends Component {
   render() {
     return (
