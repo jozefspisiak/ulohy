@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 class SmartMap2 extends Component {
     constructor(props) {
         super(props);
+        //tk nechapem celkom pointu.. okrem toho
+        // ze sa pouziva Map to je to iste co predtym..?
         this.storage = new Map();
     }
 
