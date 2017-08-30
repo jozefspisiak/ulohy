@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import SmartMap2 from './SmartMap2';
 
+//tk as before
 class UnorderedSmartMap extends Component {
 
     constructor(props) {
@@ -9,10 +10,12 @@ class UnorderedSmartMap extends Component {
     };
 
     set(coordinates, value) {
+        //tk v podstate manualne sortis 2 prvkove pole.
         let x = coordinates[0];
         let y = coordinates[1];
         if (x>y)
             coordinates = [y,x];
+        //tk pekny trik
         return this.smartMap2.set(coordinates,value);
     }
 
