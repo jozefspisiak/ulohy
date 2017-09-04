@@ -1,14 +1,4 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 import UnorderedSmartMap from './UnorderedSmartMap';
-
-import { shallow } from 'enzyme';
-
-it('renders UnorderedSmartMap', () => {
-    const wrapper = shallow(<UnorderedSmartMap />);
-    const textHeader = <h1>Unordered Smart Map</h1>;
-    expect(wrapper.contains(textHeader)).toEqual(true);
-});
 
 it('returns undefined', () => {
     let sm = new UnorderedSmartMap();

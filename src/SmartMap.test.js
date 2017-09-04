@@ -1,14 +1,4 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 import SmartMap from './SmartMap';
-
-import { shallow } from 'enzyme';
-
-it('renders SmartMap', () => {
-    const wrapper = shallow(<SmartMap />);
-    const textHeader = <h1>Smart Map</h1>;
-    expect(wrapper.contains(textHeader)).toEqual(true);
-});
 
 it('returns undefined', () => {
     let sm = new SmartMap();

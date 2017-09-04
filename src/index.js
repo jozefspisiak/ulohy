@@ -1,43 +1,7 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import Premises from './Premises';
 import SmartMap from './SmartMap';
-import SmartMap2 from './SmartMap2';
-import UnorderedSmartMap from './UnorderedSmartMap';
-import registerServiceWorker from './registerServiceWorker';
 
-import {
-  BrowserRouter as Router,
-  Route
-} from 'react-router-dom'
-
-
-import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap/dist/css/bootstrap-theme.css';
-
-import { Nav, NavItem } from 'react-bootstrap';
-
-ReactDOM.render(
-    <Router>
-        <div>
-            <Nav bsStyle="pills" activeKey={1}>
-                <NavItem eventKey="1" href="/">Home</NavItem>
-                <NavItem eventKey="2" href="/premises" disabled>Premises</NavItem>
-                <NavItem eventKey="3" href="/smart-map">Smart Map</NavItem>
-                <NavItem eventKey="3" href="/smart-map-2">Smart Map 2</NavItem>
-                <NavItem eventKey="3" href="/unordered-smart-map">Unordered Smart Map </NavItem>
-            </Nav>
-
-        <hr/>
-
-        <Route exact path="/" component={App}/>
-        <Route path="/premises" component={Premises}/>
-        <Route path="/smart-map" component={SmartMap}/>
-        <Route path="/smart-map-2" component={SmartMap2}/>
-        <Route path="/unordered-smart-map" component={UnorderedSmartMap}/>
-        </div>
-    </Router>
-    , document.getElementById('root'));
-registerServiceWorker();
+sm = new SmartMap();
+sm.set([1, 2], 'foo')
+sm.set([2, 3], 'bar')
+sm.get([1, 2]) // returns 'foo'
+sm.get([2, 1]) // returns undefined or throws 'key error'
