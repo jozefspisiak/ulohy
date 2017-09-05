@@ -8,20 +8,22 @@ export default class SmartMap {
         let y = coordinates[1];
         let storage = this.storage;
         if (storage.has(x))
+        {
             this.storage.set(x,storage.get(x).set(y,value));
+        }
         else
-            {
-                let newStorage = new Map();
-                newStorage.set(y,value);
-                this.storage.set(x, newStorage);
-            }
-        return true;
+        {
+            let newStorage = new Map();
+            newStorage.set(y,value);
+            this.storage.set(x, newStorage);
+        }
     }
 
     get(coordinates) {
         let x = coordinates[0];
         let y = coordinates[1];
-        if (this.storage.has(x) && this.storage.get(x).has(y)) {
+        if (this.storage.has(x) && this.storage.get(x).has(y))
+        {
             return this.storage.get(x).get(y);
         }
 
