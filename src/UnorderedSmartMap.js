@@ -1,51 +1,26 @@
-import React, { Component } from 'react';
-import SmartMap2 from './SmartMap2';
+import SmartMap from './SmartMap';
 
-class UnorderedSmartMap extends Component {
+export default class UnorderedSmartMap {
 
-    constructor(props) {
-        super(props);
-        this.smartMap2 = new SmartMap2();
+    constructor() {
+        this.smartMap = new SmartMap();
     };
 
     set(coordinates, value) {
-        let x = coordinates[0];
-        let y = coordinates[1];
-        if (x>y)
-            coordinates = [y,x];
-        return this.smartMap2.set(coordinates,value);
+        let sortedCoordinates = this.sortCoordinates(coordinates);
+        return this.smartMap.set(sortedCoordinates,value);
     }
 
     get(coordinates) {
-        let x = coordinates[0];
-        let y = coordinates[1];
-        if (x>y)
-            coordinates = [y,x];
-        return this.smartMap2.get(coordinates);
+        let sortedCoordinates = this.sortCoordinates(coordinates);
+        return this.smartMap.get(sortedCoordinates);
     }
 
-    render() {
-        return (
-            <div className="App">
-                <div className="App-header">
-                    <h1>Unordered Smart Map</h1>
-                </div>
-                <p className="App-intro">
-                    Run tests
-                <br />
-                </p>
-                <pre>
-                    sm = new UnorderedSmartMap(); <br />
-                    sm.set([1, 2], 'foo') <br />
-                    sm.set([2, 3], 'bar')<br />
-                    console.log(sm.get([1, 2])) // returns 'foo'<br />
-                    console.log(sm.get([2, 1])) // returns 'foo'<br />
-                    console.log(sm.get([1, 1])) // returns undefined
-                </pre>
-            </div>
-        );
+    sortCoordinates(coordinates) {
+      let x = coordinates[0];
+      let y = coordinates[1];
+      if (x>y)
+          coordinates = [y,x];
+      return coordinates;
     }
 }
-
-
-export default UnorderedSmartMap;
