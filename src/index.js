@@ -1,7 +1,5 @@
-import SmartMap from './SmartMap';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import NameAutoComplete from './NameAutoComplete';
 
-sm = new SmartMap();
-sm.set([1, 2], 'foo')
-sm.set([2, 3], 'bar')
-sm.get([1, 2]) // returns 'foo'
-sm.get([2, 1]) // returns undefined or throws 'key error'
+ReactDOM.render(<NameAutoComplete txt="./name-database.txt"/>, document.getElementById('root'));
