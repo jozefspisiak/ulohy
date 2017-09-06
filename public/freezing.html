@@ -12,7 +12,7 @@ function asyncLoop(n, callback) {
       result += Math.log(i)
     }
     if (i < n) {
-        setTimeout(function() {loop(i,result)}, 1);
+        setTimeout(function() {loop(i,result)}, 0);
     } else {
         callback(result);
     }
