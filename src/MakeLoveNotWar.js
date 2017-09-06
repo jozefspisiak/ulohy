@@ -1,11 +1,7 @@
 var arr = []
 
-var increaseFunction = function increaseFunction(i) {
-  arr.push(function (x) { return x + i; });
-};
-
 for (var i = 0; i < 10; i++) {
-  increaseFunction(i);
+  arr.push((function (val) { return function(val2) { return val2 + val; }})(i));
 }
 
 console.log(arr.map((f) => f(0)))
