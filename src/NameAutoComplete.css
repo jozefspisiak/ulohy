@@ -1,0 +1,14 @@
+.nameautocomplete {
+  border: solid 2px;
+  width: 200px;
+  height: 30px
+}
+
+.nameautocomplete-valid {
+  color: green;
+  font-weight: bold;
+}
+
+.nameautocomplete-invalid {
+  color: red;
+}
