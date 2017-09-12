@@ -1,7 +1,7 @@
 .nameautocomplete {
   border: solid 2px;
-  width: 200px;
-  height: 30px
+  width: 400px;
+  height: 35px
 }
 
 .nameautocomplete-valid {
@@ -11,4 +11,9 @@
 
 .nameautocomplete-invalid {
   color: red;
+}
+
+.nameautocomplete-selected {
+  background-color: black;
+  color: white;
 }

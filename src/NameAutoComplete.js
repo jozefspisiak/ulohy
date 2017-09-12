@@ -1,95 +1,157 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import styles from './NameAutoComplete.css'
+import './NameAutoComplete.css'
 
 class NameAutoComplete extends React.Component {
   constructor() {
     super();
-    this.state = {text: [], names: [], suggested: 0, caret: 0}
+    this.state = {html: '', names: [], suggested: 0, caret: 0}
   }
 
   emitChange(ev){
-    let element = ev.target
-    let inputText = element.textContent
+    const element = ev.target
+    const inputText = element.textContent
     let caret = this.getCaretCharacterOffsetWithin(element)
 
+    const html = this.processText(inputText,caret)
+    const caretMax = this.stripHtml(html).length
+    // we did strip whitespaces, so we do not want cursor to jump
+    if (caret > caretMax)
+      caret = caretMax
 
+    this.setState({html: html, caret: caret, suggested: 0})
+  }
+
+  processText(inputText,caret) {
     inputText = inputText.split(/[\s]+/)
 
-    // dealing with trailing spaces
-    //if (inputText[inputText.length - 1] === '')
-    //  inputText.pop()
+    let html = ''
+    let i = 1
+    for (let word of inputText) {
+      if (word !== '') {
+        const isValidName = this.isValidName(word)
+        let classMarkup = ''
+        if (caret <= word.length && caret > 0 && !isValidName)
+        {
+          // this is current word in writing, leave class empty
+        } else if (isValidName) {
+          classMarkup = ' class="nameautocomplete-valid"'
+        } else {
+          classMarkup = ' class="nameautocomplete-invalid"'
+        }
 
-    /*let i = 0
-    for (let child of element.childNodes) {
-      //child.textContent = inputText[i]
-      //child.innerHtml += '&nbsp;'
-      //console.log(child);
-      if (child.nodeType === 3)
-        child.textContent = ''
+        let separator = String.fromCharCode(160);
+        if (inputText.length === i)
+          separator = ''
+        html += '<span' + classMarkup + '>' + word + '</span>' + separator
+        caret -= word.length
+        if (separator.length > 0)
+          caret--
+      }
       i++
     }
-    */
 
-    this.setState({text: inputText, caret: caret})
+    return html
   }
 
   handleClick(ev) {
     const element = ev.target
     const name = element.innerHTML
-    const caret = this.state.caret
-    let text = this.state.text
+    let caret = this.state.caret
+    let html = this.state.html
 
-    let currentWord = this.getCurrentWord()
+    const currentWord = this.getCurrentWord()
 
     const toAdd = name.substring(currentWord.length)
 
-    text[this.getCurrentWordIndex()] = name
+    let text = this.stripHtml(html)
 
-    this.setState({text: text, caret: caret+toAdd.length, suggested: 0})
+    let words = text.split(/[\s]+/)
+    let letterCount = 0
+    let replacedText = ''
+    let i = 0
+    for (let word of words) {
+      if (letterCount <= caret && letterCount + word.length >= caret) {
+        replacedText += name
+      } else {
+        replacedText += word
+      }
+      if (i < words.length && word.length > 0) {
+        replacedText += String.fromCharCode(160);
+        letterCount++
+      }
+      letterCount += word.length
+      i++
+    }
+
+    caret = caret+toAdd.length
+    html = this.processText(replacedText,caret)
+
+    this.setState({html: html, caret: caret, suggested: 0})
   }
 
-  handleKeyPress(ev) {
-    let element = ev.target
-    console.log(element)
-    let key = ev.key
-    if (key === 'Enter') {
+  handleKeyDown(ev) {
+    const key = ev.key
+    const element = ev.target
+    let suggested = this.state.suggested
+    // this is ugly, should be fixed better
+    const suggestedElements = ReactDOM.findDOMNode(this).childNodes[1].childNodes;
 
+    switch (key) {
+      case 'Enter':
+        // we do not want a new line in the contentEditable
+        ev.preventDefault()
+        if (suggested < suggestedElements.length)
+          suggestedElements[suggested].click()
+        break;
+      case 'ArrowDown':
+        ev.preventDefault()
+        const max = suggestedElements.length - 1
+        if (suggested < max)
+          suggested++
+        this.setState({suggested: suggested})
+        break;
+      case 'ArrowUp':
+        ev.preventDefault()
+        if (suggested > 0)
+          suggested--
+        this.setState({suggested: suggested})
+        break;
+      case 'ArrowLeft':
+        if (!element.isContentEditable)
+          break;
+        // this is bad, we should create and dispatch new event instead  of reusing
+        this.emitChange(ev)
+        break;
+      case 'ArrowRight':
+        if (!element.isContentEditable)
+          break;
+        // same here as above
+        this.emitChange(ev)
+        break;
+      default:
     }
+  }
+
+  stripHtml(html) {
+    // from https://stackoverflow.com/a/5002618
+    let div = document.createElement("div");
+    div.innerHTML = html;
+    return div.textContent || div.innerText || "";
   }
 
   getCurrentWord() {
-    const text = this.state.text
-    let caret = this.state.caret
+    const html = this.state.html
+    const caret = this.state.caret
 
-    if (text.length === 0 || caret === 0 ) return ''
+    if (html.length === 0 || caret === 0 ) return ''
 
-    for (let name of text) {
-      if (caret <= name.length)
-        return name.substring(0,caret)
-      else
-        caret -= name.length+1
-    }
+    const text = this.stripHtml(html)
 
-    return ''
-  }
+    const textUntilCaret = text.substring(0,caret)
+    const splitByWhitespace = textUntilCaret.split(/[\s]+/)
 
-  getCurrentWordIndex() {
-    const text = this.state.text
-    let caret = this.state.caret
-
-    if (text.length === 0 || caret === 0 ) return 0
-
-    let id = 0;
-    for (let word of text) {
-      if (caret <= word.length)
-        return id
-      else
-        caret -= word.length+1
-      id++
-    }
-
-    return text.length
+    return splitByWhitespace[splitByWhitespace.length-1]
   }
 
   findMatchingNames(){
@@ -99,35 +161,34 @@ class NameAutoComplete extends React.Component {
     const names = this.state.names
 
     let result = []
-    for (let id in names)
-      if (names[id].toLowerCase().indexOf(start.toLowerCase()) === 0)
-        if (names.hasOwnProperty(id)) {
-           result.push({id:id,name:names[id]})
-        }
+    let id = 0
+    for (let name of names) {
+      if (name.toLowerCase().indexOf(start.toLowerCase()) === 0 &&
+        name.toLowerCase() !== start.toLowerCase())
+          result.push({id:id,name:names[id]})
+
+      id++
+    }
 
     return result
   }
 
   componentDidUpdate() {
     let caret = this.state.caret
-    if (this.state.text.length !== 0 && caret !== 0) {
-      const element = ReactDOM.findDOMNode(this).firstChild;
-      let range = document.createRange()
-      let sel = window.getSelection()
+    if (this.state.html.length !== 0 && caret !== 0) {
+      // this is ugly, should be fixed better
+      const contentEditableElement = ReactDOM.findDOMNode(this).firstChild;
+      const range = document.createRange()
+      const sel = window.getSelection()
 
-      // we need to clear user input because we surprassed warning
-      for (let child of element.childNodes) {
-        if (child.nodeType === 3)
-          child.textContent = ''
-
-        child.textContent = child.textContent.split(/[\s]+/)[0] + String.fromCharCode(160)
-      }
-
-      for (let child of element.childNodes) {
+      for (let child of contentEditableElement.childNodes) {
         const text = child.textContent
 
         if (caret <= text.length) {
+          // select the span element
           let caretNode = child.firstChild
+
+          // if the text was not wrapped in span yet, but we have text
           if (child.nodeType === 3) {
             caretNode = child
           }
@@ -141,7 +202,7 @@ class NameAutoComplete extends React.Component {
       }
       sel.removeAllRanges();
       sel.addRange(range);
-      element.focus();
+      contentEditableElement.focus();
     }
   }
 
@@ -154,8 +215,8 @@ class NameAutoComplete extends React.Component {
     if (typeof win.getSelection !== "undefined") {
         sel = win.getSelection();
         if (sel.rangeCount > 0) {
-            let range = win.getSelection().getRangeAt(0);
-            let preCaretRange = range.cloneRange();
+            const range = win.getSelection().getRangeAt(0);
+            const preCaretRange = range.cloneRange();
             preCaretRange.selectNodeContents(element);
             preCaretRange.setEnd(range.endContainer, range.endOffset);
             caretOffset = preCaretRange.toString().length;
@@ -163,8 +224,8 @@ class NameAutoComplete extends React.Component {
     } else {
       sel = doc.selection
       if ( sel.type !== "Control") {
-        let textRange = sel.createRange();
-        let preCaretTextRange = doc.body.createTextRange();
+        const textRange = sel.createRange();
+        const preCaretTextRange = doc.body.createTextRange();
         preCaretTextRange.moveToElementText(element);
         preCaretTextRange.setEndPoint("EndToEnd", textRange);
         caretOffset = preCaretTextRange.text.length;
@@ -178,50 +239,52 @@ class NameAutoComplete extends React.Component {
 	}
 
 	readTextFile(file) {
-		let rawFile = new XMLHttpRequest();
-		rawFile.open("GET", file, true);
-		rawFile.onreadystatechange = () => {
-			if (rawFile.readyState === 4) {
-				if (rawFile.status === 200 || rawFile.status === 0) {
-          let names = rawFile.responseText.split(', ')
+		const request = new XMLHttpRequest();
+		request.open("GET", file, true);
+		request.onreadystatechange = () => {
+			if (request.readyState === 4) {
+				if (request.status === 200 || request.status === 0) {
+          const names = request.responseText.split(', ')
 					this.setState({
 						names: names
 					});
 				}
 			}
 		};
-		rawFile.send(null);
+		request.send(null);
 	};
 
-  validateName(index) {
-    if (this.getCurrentWordIndex() === index)
-      return ''
+  isValidName(name) {
+    for (let listname of this.state.names)
+      if (listname.toLowerCase() === name.toLowerCase())
+        return true
 
-    const text = this.state.text
-    for (let name of this.state.names)
-      if (name.toLowerCase() === text[index].toLowerCase())
-        return 'nameautocomplete-valid'
+    return false
+  }
 
-    return 'nameautocomplete-invalid'
+  getClassForSuggested(index) {
+    if (index === this.state.suggested)
+      return 'nameautocomplete-selected'
+
+    return ''
   }
 
   render() {
     return (
       <div>
         <div
-        contentEditable
-        suppressContentEditableWarning
-        onInput={this.emitChange.bind(this)}
-        className="nameautocomplete">
-          {this.state.text.map((name, index) =>
-            <span key={index} className={this.validateName(index)}>
-              {name + ' '}
-            </span>
-          )}
-        </div>
+          contentEditable
+          suppressContentEditableWarning
+          onInput={this.emitChange.bind(this)}
+          onKeyDown={this.handleKeyDown.bind(this)}
+          className="nameautocomplete"
+          dangerouslySetInnerHTML={{__html: this.state.html}} />
         <ul>
-        {this.findMatchingNames().map((name) =>
-          <li key={name.id} onKeyPress={this.handleKeyPress.bind(this)} onClick={this.handleClick.bind(this)}>
+        {this.findMatchingNames().map((name,index) =>
+          <li key={name.id}
+            className={this.getClassForSuggested(index)}
+            onKeyDown={this.handleKeyDown.bind(this)}
+            onClick={this.handleClick.bind(this)}>
             {name.name}
           </li>
         )}
