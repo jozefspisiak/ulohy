@@ -50,17 +50,54 @@ it('returns rejected promise (all)', () => {
 })
 
 it('returns all values of resolved promises in different times (all)', () => {
-  var p1 = new Promise((resolve, reject) => {
-    setTimeout(resolve, 1000, 'one');
+  let p1 = new Promise((resolve, reject) => {
+    setTimeout(resolve, 100, 'one');
   });
-  var p2 = new Promise((resolve, reject) => {
-    setTimeout(resolve, 2000, 'two');
+  let p2 = new Promise((resolve, reject) => {
+    setTimeout(resolve, 200, 'two');
   });
-  var p3 = new Promise((resolve, reject) => {
-    setTimeout(resolve, 3000, 'three');
+  let p3 = new Promise((resolve, reject) => {
+    setTimeout(resolve, 300, 'three');
   });
 
   let p = CustomPromise.all([p1,p2,p3])
 
   return expect(p).resolves.toEqual(['one','two','three'])
+})
+
+it('fast reject (all)', () => {
+  let p1 = new Promise((resolve, reject) => {
+    setTimeout(resolve, 4000, 'one');
+  });
+  let p2 = new Promise((resolve, reject) => {
+    setTimeout(reject, 100, 'two');
+  });
+
+  let p = CustomPromise.all([p1,p2])
+
+  return expect(p).rejects.toEqual('two')
+})
+
+it('CustomPromise all returns Promise (all)', () => {
+  let p1 = new Promise((resolve, reject) => {
+    setTimeout(resolve, 100, 'one');
+  });
+  let p2 = new Promise((resolve, reject) => {
+    setTimeout(resolve, 200, 'two');
+  });
+
+  let p = CustomPromise.all([p1,p2])
+
+  return expect(p).toBeInstanceOf(Promise)
+})
+
+it('CustomPromise all with first foreverPendingPromise Promise (all)', () => {
+  let p1 = Promise.race([]);
+  let p2 = new Promise((resolve, reject) => {
+    setTimeout(reject, 2000, 'two');
+  });
+
+  let p = CustomPromise.all([p1,p2])
+console.log(p)
+  return expect(p).rejects.toEqual('two')
 })
