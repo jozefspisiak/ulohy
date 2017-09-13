@@ -2,16 +2,31 @@ export default class CustomPromise {
 }
 
 CustomPromise.all = (promises) => {
-  const results = [];
+  return new Promise((resolveFunction, rejectFunction) => {
+    const results = [];
+    if (promises.length === 0)
+      resolveFunction(results)
 
-  const merged = promises.reduce(
-    (accumulator, promise) =>
-      accumulator.
-      then(() => promise).
-      then(result => results.push(result)),
-    Promise.resolve(null));
-
-  return merged.then(() => results);
+    let pending = promises.length
+    promises.forEach((promise,index) => {
+      // this is needed in case promise array doesn't contain promises
+      if (Promise.resolve(promise) == promise)
+        promise.then((result) => {
+          results[index] = result
+          pending--
+          if (pending === 0)
+            resolveFunction(results)
+          },(error) =>
+          rejectFunction(error)
+        )
+      else {
+        results[index] = promise
+        pending--
+        if (pending === 0)
+          resolveFunction(results)
+      }
+    })
+  })
 }
 
 CustomPromise.race = (promises) => {

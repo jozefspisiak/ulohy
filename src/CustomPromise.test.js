@@ -98,6 +98,6 @@ it('CustomPromise all with first foreverPendingPromise Promise (all)', () => {
   });
 
   let p = CustomPromise.all([p1,p2])
-console.log(p)
+
   return expect(p).rejects.toEqual('two')
 })
