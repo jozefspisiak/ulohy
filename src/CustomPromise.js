@@ -10,13 +10,15 @@ CustomPromise.all = (promises) => {
     let pending = promises.length
     promises.forEach((promise,index) => {
       // this is needed in case promise array doesn't contain promises
-      Promise.resolve(promise).then((result) => {
-        results[index] = result
-        pending--
-        if (pending === 0)
-          resolveFunction(results)
-        },(error) =>
-        rejectFunction(error)
+      Promise.resolve(promise).then(
+        (result) => {
+          results[index] = result
+          pending--
+          if (pending === 0)
+            resolveFunction(results)
+        },
+        (error) =>
+          rejectFunction(error)
       )
     })
   })
