@@ -12,7 +12,7 @@ it('returns first non-promise object resolved (race)', () => {
   let foreverPendingPromise = Promise.race([]);
   let alreadyResolvedProm = Promise.resolve(666);
 
-  let arr = [foreverPendingPromise, "non-Promise value", Promise.resolve(666)];
+  let arr = [foreverPendingPromise, "non-Promise value", alreadyResolvedProm];
   let p = CustomPromise.race(arr);
 
   return expect(p).resolves.toEqual("non-Promise value")
@@ -29,6 +29,18 @@ it('returns first resolved promise (race) with setTimeout', () => {
 
   let p = CustomPromise.race([p1, p2])
   return expect(p).resolves.toEqual('two')
+})
+
+it('returns first rejected promise (race) with setTimeout', () => {
+  let p1 = new Promise(function(resolve, reject) {
+    setTimeout(resolve, 500, 'one');
+  });
+  let p2 = new Promise(function(resolve, reject) {
+      setTimeout(reject, 100, 'two');
+  });
+
+  let p = CustomPromise.race([p1, p2])
+  return expect(p).rejects.toEqual('two')
 })
 
 it('returns array of values for all promises (all)', () => {
@@ -100,4 +112,11 @@ it('CustomPromise all with first foreverPendingPromise Promise (all)', () => {
   let p = CustomPromise.all([p1,p2])
 
   return expect(p).rejects.toEqual('two')
+})
+
+it('CustomPromise (all) resolves on empty array', () => {
+
+  let p = CustomPromise.all([])
+
+  return expect(p).resolves.toEqual([])
 })
