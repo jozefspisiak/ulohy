@@ -6,12 +6,22 @@ class NameAutoComplete extends React.Component {
   constructor() {
 
     super()
+    // it's ugly to store html in the state - there are many valid html for the same (visual) state
+    // so to do anything meaningfull with the html is to parse it. IMO stored should be
+    // either the array of  words (preferred) or the input string with exactly one
+    // space separating the words.
     this.state = {
       caret: 0,
       html: '',
       names: [],
       suggested: 0,
     }
+
+    //setTimeout(() => {
+    //  console.log('10 seconds elapsed') // eslint-disable-line no-console
+    //  this.setState({html: '<span> tututu </span>'})
+    //  this.setState({caret: 10})
+    //}, 10000)
 
   }
 
@@ -53,9 +63,19 @@ class NameAutoComplete extends React.Component {
 
   }
 
+  // this function's name tells me nothing. Actually it is a bit misleading as it does not emit
+  // anything.
+  //
+  // Note that this function takes ev only to take out target attribute out of it. It seems that the
+  // function (for whatever it does) does not need the whole event object at all - so it shouldn't
+  // ask for it. Moreover:
+  //
+  // If I get it right, the element is always the same dom element. No need to even ask for it in
+  // the function.
   emitChange(ev) {
 
     const element = ev.target,
+      // inputText should be taken from state. This is however part of the former objection.
       inputText = element.textContent
     let caret = this.getCaretCharacterOffsetWithin(element)
     const html = this.processText(inputText, caret),
@@ -110,7 +130,8 @@ class NameAutoComplete extends React.Component {
   }
 
   handleClick(ev) {
-
+    // finding out `name` this way is ugly / fragile. For example, what if the name was elipsized /
+    // uppercased / ... ? you should only read some ID from the clicked element
     const element = ev.target,
       name = element.innerHTML
     let caret = this.state.caret,
@@ -123,6 +144,7 @@ class NameAutoComplete extends React.Component {
     let letterCount = 0
     let replacedText = ''
     let i = 0
+    // comment, what the following block of code does
     for (const word of words) {
 
       if (letterCount <= caret && letterCount + word.length >= caret) {
@@ -131,13 +153,20 @@ class NameAutoComplete extends React.Component {
         replacedText += word
       }
       if (i < words.length && word.length > 0) {
+        // Comment. What's wrong about simple space?
+        //
+        // Reducing multiple spaces to one is something that deserves a comment as well.
+        //
+        // BUG: If the are multiple spaces before the currently editing name, the cursor jumps to the
+        // wrong position. Not sure, how it is even possible to produce more than one space in a
+        // row, if you always keep just one? Maybe the compoent is only half-managed?
+
         replacedText += String.fromCharCode(160)
         letterCount++
       }
       letterCount += word.length
       i++
     }
-
     caret += toAdd.length
     html = this.processText(replacedText, caret)
 
@@ -184,6 +213,7 @@ class NameAutoComplete extends React.Component {
       case 'ArrowLeft': {
         if (!element.isContentEditable) {break}
 
+        // why do you think it is bad? Generally, I have no problem with it :)
         // This is bad, we should create and dispatch new event instead  of reusing
         this.emitChange(ev)
         break
@@ -236,6 +266,7 @@ class NameAutoComplete extends React.Component {
       result = []
     let id = 0
     for (const name of names) {
+      // it's often a good idea to also strip accents
       if (name.toLowerCase().indexOf(start.toLowerCase()) === 0 &&
                 name.toLowerCase() !== start.toLowerCase()) {
 
@@ -282,6 +313,7 @@ class NameAutoComplete extends React.Component {
     this.readTextFile(this.props.txt)
   }
 
+  // use some nice `fetch` function.
   readTextFile(file) {
     const request = new XMLHttpRequest()
     request.open('GET', file, true)
@@ -312,6 +344,8 @@ class NameAutoComplete extends React.Component {
     return ''
   }
 
+  // until the names are fetched, there is no reason to render anything. User won't be able to use
+  // the app properly.
   render() {
 
     return (
