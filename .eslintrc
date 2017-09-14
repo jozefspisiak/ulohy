@@ -1,0 +1,13 @@
+{
+  "plugins": [
+    "react"
+  ],
+  "extends": ["vacuumlabs"],
+  "parserOptions": {
+    "ecmaversion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  }
+}
