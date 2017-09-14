@@ -1,26 +1,25 @@
-import SmartMap from './SmartMap';
+import SmartMap from './SmartMap'
 
 export default class UnorderedSmartMap {
 
-    constructor() {
-        this.smartMap = new SmartMap();
-    };
+  constructor() {
+    this.smartMap = new SmartMap()
+  };
 
-    set(coordinates, value) {
-        let sortedCoordinates = this.sortCoordinates(coordinates);
-        return this.smartMap.set(sortedCoordinates,value);
-    }
+  set(coordinates, value) {
+    const sortedCoordinates = this.sortCoordinates(coordinates)
+    return this.smartMap.set(sortedCoordinates, value)
+  }
 
-    get(coordinates) {
-        let sortedCoordinates = this.sortCoordinates(coordinates);
-        return this.smartMap.get(sortedCoordinates);
-    }
+  get(coordinates) {
+    const sortedCoordinates = this.sortCoordinates(coordinates)
+    return this.smartMap.get(sortedCoordinates)
+  }
 
-    sortCoordinates(coordinates) {
-      let x = coordinates[0];
-      let y = coordinates[1];
-      if (x>y)
-          coordinates = [y,x];
-      return coordinates;
-    }
+  sortCoordinates(coordinates) {
+    const x = coordinates[0]
+    const y = coordinates[1]
+    if (x>y) {coordinates = [y, x]}
+    return coordinates
+  }
 }
