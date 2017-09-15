@@ -72,9 +72,11 @@ class NameAutoComplete extends React.Component {
   //
   // If I get it right, the element is always the same dom element. No need to even ask for it in
   // the function.
-  emitChange(ev) {
+  //
+  // fixed!
+  contenteditableInputChanged() {
 
-    const element = ev.target,
+    const element = this.contentnode,
       // inputText should be taken from state. This is however part of the former objection.
       inputText = element.textContent
     let caret = this.getCaretCharacterOffsetWithin(element)
@@ -215,14 +217,15 @@ class NameAutoComplete extends React.Component {
 
         // why do you think it is bad? Generally, I have no problem with it :)
         // This is bad, we should create and dispatch new event instead  of reusing
-        this.emitChange(ev)
+        // fixed by not needing the event
+        this.contenteditableInputChanged()
         break
       }
       case 'ArrowRight': {
         if (!element.isContentEditable) {break}
 
         // Same here as above
-        this.emitChange(ev)
+        this.contenteditableInputChanged()
         break
       }
       default:
@@ -354,7 +357,7 @@ class NameAutoComplete extends React.Component {
           className="nameautocomplete"
           contentEditable
           dangerouslySetInnerHTML={{__html: this.state.html}}
-          onInput={this.emitChange.bind(this)}
+          onInput={this.contenteditableInputChanged.bind(this)}
           onKeyDown={this.handleKeyDown.bind(this)}
           ref={(contentnode) => (this.contentnode = contentnode)}
           suppressContentEditableWarning
